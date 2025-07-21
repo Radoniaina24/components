@@ -1,62 +1,94 @@
 "use client";
 
-import MultiSelect from "@/components/Form/SelectMultiple";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
+import UserMultiSelect, { User } from "@/components/Form/SelectMultiplePromise";
+import { useState, useEffect } from "react";
 
-const OPTIONS = [
-  { label: "Manager", value: "manager" },
-  { label: "Admin", value: "admin" },
-  { label: "Employee", value: "employee" },
-];
+export default function UserSelectionPage() {
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const validationSchema = Yup.object().shape({
-  roles: Yup.array()
-    .min(1, "Sélectionner au moins un rôle")
-    .of(Yup.string().oneOf(OPTIONS.map((o) => o.value))),
-});
+  useEffect(() => {
+    // Simulation de chargement asynchrone
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        // En pratique, vous feriez un appel API ici
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-export default function FormikPage() {
+        const mockUsers = [
+          {
+            _id: "687e103dc85ec61be700835b",
+            firstName: "Faniry",
+            lastName: "Ratsimba",
+          },
+          {
+            _id: "687e104ac85ec61be700835e",
+            firstName: "Radoniaina",
+            lastName: "Andrianarisoa",
+          },
+          {
+            _id: "687e1055c85ec61be7008361",
+            firstName: "Tiana",
+            lastName: "Rajaonarison",
+          },
+          {
+            _id: "687e1064c85ec61be7008365",
+            firstName: "Luc",
+            lastName: "Asong",
+          },
+        ];
+
+        setUsers(mockUsers);
+      } catch (error) {
+        console.error("Failed to fetch users", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+  console.log(selectedUserIds);
   return (
-    <main className="p-8 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Formulaire avec MultiSelect</h1>
+    <div className="min-h-screen p-8 bg-gray-50">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+          Team Selection
+        </h1>
 
-      <Formik
-        initialValues={{ roles: [] as string[] }}
-        validationSchema={validationSchema}
-        onSubmit={(values) => {
-          console.log("Submitted:", values);
-        }}
-      >
-        {({ values, setFieldValue, errors, touched, isSubmitting }) => (
-          <Form className="space-y-2">
-            <label className="block font-medium">Rôles</label>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <UserMultiSelect
+            users={users}
+            placeholder="Sélectionner les membres de l’équipe"
+            value={selectedUserIds}
+            onChange={setSelectedUserIds}
+            loading={loading}
+          />
 
-            <MultiSelect
-              options={OPTIONS}
-              placeholder="Choisir un ou plusieurs rôles"
-              value={values.roles}
-              onChange={(vals) => setFieldValue("roles", vals)}
-            />
-
-            {errors.roles && touched.roles && (
-              <div className="text-red-600 text-sm">{errors.roles}</div>
+          {/* <div className="mt-4">
+            <h3 className="font-medium text-gray-700 mb-2">Selected Team:</h3>
+            {loading ? (
+              <p className="text-sm text-gray-500">Loading selection...</p>
+            ) : selectedUserIds.length > 0 ? (
+              <ul className="space-y-1">
+                {selectedUserIds.map((userId) => {
+                  const user = users.find((u) => u._id === userId);
+                  return (
+                    <li key={userId} className="text-sm text-gray-600">
+                      {user
+                        ? `${user.firstName} ${user.lastName}`
+                        : "Unknown user"}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No team members selected</p>
             )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Envoyer
-            </button>
-
-            <pre className="bg-gray-100 p-2 text-xs mt-4">
-              {JSON.stringify(values, null, 2)}
-            </pre>
-          </Form>
-        )}
-      </Formik>
-    </main>
+          </div> */}
+        </div>
+      </div>
+    </div>
   );
 }
