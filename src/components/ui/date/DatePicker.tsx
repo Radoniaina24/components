@@ -324,6 +324,10 @@ export default DatePicker;
 
 //Utilisation
 
+//   const date = selectedDate?.toISOString(); // ajouter dans mongoDb
+//   const dateObj = date ? new Date(date) : null;
+//   console.log(dateObj);
+
 // interface FormValues {
 //   date: Date | null;
 // }

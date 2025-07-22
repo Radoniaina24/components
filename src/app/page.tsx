@@ -1,12 +1,15 @@
 "use client";
+import DatePicker from "@/components/ui/Date/DatePicker";
+import { formatDate } from "@/utils/DateFormater";
 import React from "react";
-import DatePicker from "@/components/ui/date/DatePicker";
 
 import { useState } from "react";
 
 export default function UserSelectionPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>();
-  const date = selectedDate?.toISOString();
+  const date = selectedDate?.toISOString(); // ajouter dans mongoDb
+  const dateObj = date ? new Date(date) : null;
+  console.log(dateObj);
   return (
     <div className="min-h-screen p-8 bg-gray-50">
       {" "}
@@ -19,7 +22,7 @@ export default function UserSelectionPage() {
         format="dd/mm/yyyy"
         error=""
       />
-      {date}
+      {formatDate(date as string)}
     </div>
   );
 }
