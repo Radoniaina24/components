@@ -185,7 +185,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         <div
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={`
-            relative w-full px-4 py-3 text-left border rounded-xl transition-all duration-200
+            relative w-full px-4 py-2.5 text-left border rounded-xl transition-all duration-200
             ${
               disabled
                 ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
@@ -209,7 +209,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           aria-expanded={isOpen}
           aria-haspopup="dialog"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center text-sm justify-between">
             <span className={selectedDate ? "text-gray-900" : "text-gray-500"}>
               {selectedDate ? formatDate(selectedDate) : placeholder}
             </span>

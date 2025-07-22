@@ -17,6 +17,7 @@ interface UserMultiSelectProps {
   value?: string[];
   className?: string;
   loading?: boolean;
+  error?: boolean;
 }
 
 export default function UserMultiSelect({
@@ -27,6 +28,7 @@ export default function UserMultiSelect({
   value,
   className = "",
   loading = false,
+  error,
 }: UserMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,13 +93,17 @@ export default function UserMultiSelect({
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative w-full max-w-md ${className}`}>
+    <div ref={containerRef} className={`relative w-full  ${className}`}>
       {/* Input area */}
       <div
         onClick={handleDropdownToggle}
-        className={`border border-gray-300 rounded-xl p-2 flex items-center flex-wrap gap-1 min-h-[44px] cursor-pointer 
+        className={`border ${
+          error
+            ? "border-red-500 ring-0 ring-red-500"
+            : "border-gray-300 ring-1 ring-blue-500"
+        }  rounded-xl p-2 flex items-center flex-wrap gap-1 min-h-[44px] cursor-pointer 
         bg-white shadow-sm hover:shadow-md transition-all duration-200
-        ${open ? "ring-2 ring-blue-500 border-blue-500" : ""} ${
+        ${open ? " border-blue-500" : ""} ${
           loading ? "opacity-70 cursor-not-allowed" : ""
         }`}
       >
@@ -108,7 +114,7 @@ export default function UserMultiSelect({
         )}
 
         {selectedValues.length === 0 && !loading && (
-          <span className="text-gray-400 text-sm">{placeholder}</span>
+          <span className="pl-2.5 text-gray-600 text-sm">{placeholder}</span>
         )}
 
         {!loading &&

@@ -11,6 +11,7 @@ type ModalProps = {
   closeButton?: boolean;
   overlayClose?: boolean;
   maxWidth?: string;
+  maxHeight?: string;
 };
 
 const Modal = ({
@@ -21,6 +22,7 @@ const Modal = ({
   closeButton = true,
   overlayClose = true,
   maxWidth = "max-w-2xl",
+  maxHeight = "",
 }: ModalProps) => {
   // Gestion de la fermeture via la touche ESC
   const handleEsc = useCallback(
@@ -61,14 +63,17 @@ const Modal = ({
 
       {/* Contenu du modal */}
       <div
-        className={`relative z-50 w-full rounded-2xl bg-white shadow-xl transition-all ${maxWidth}`}
+        className={`relative z-50 w-full overflow-y-auto ${maxHeight} rounded-2xl bg-white shadow-xl transition-all ${maxWidth}`}
         tabIndex={-1}
       >
         {/* En-tête */}
         {(title || closeButton) && (
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             {title && (
-              <h2 id="modal-title" className="text-lg font-semibold text-gray-900">
+              <h2
+                id="modal-title"
+                className="text-lg font-semibold text-gray-900"
+              >
                 {title}
               </h2>
             )}
@@ -78,8 +83,7 @@ const Modal = ({
                 className="text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Fermer le modal"
               >
-                <CircleX  className="text-red-500 hover:cursor-pointer"/>
-              
+                <CircleX className="text-red-500 hover:cursor-pointer" />
               </button>
             )}
           </div>
