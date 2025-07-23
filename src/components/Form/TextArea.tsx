@@ -47,8 +47,10 @@ const FormTextarea: React.FC<FormTextareaProps> = ({
         onChange={onChange}
         rows={rows}
         className={`w-full px-4 py-2 border ${
-          error && touched ? "border-red-500" : "border-gray-300"
-        } rounded-xl shadow text-sm focus:outline-none focus:ring-2 focus:ring-blue-500`}
+          error && touched
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+        } rounded-xl shadow text-sm focus:outline-none focus:ring-1 `}
         placeholder={placeholder}
       ></textarea>
       <div
@@ -57,7 +59,7 @@ const FormTextarea: React.FC<FormTextareaProps> = ({
         }  mt-1`}
       >
         {error && touched && <p className="text-sm text-red-500">{error}</p>}
-        <p className="text-sm text-gray-500">{charCount} caractères</p>
+        {/* <p className="text-sm text-gray-500">{charCount} caractères</p> */}
       </div>
     </div>
   );

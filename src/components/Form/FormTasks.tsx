@@ -4,11 +4,12 @@ import Modal from "../Modal/Modal";
 import FormInput from "./InputField";
 import FormSelect from "./FormSelect";
 import DatePicker from "../ui/Date/DatePicker";
-import RichTextEditor from "./RichTextEditor";
+
 import FormTextarea from "./TextArea";
 
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { TiptapEditor } from "../Titptap";
 
 interface Task {
   responsible: Array<string>;
@@ -18,7 +19,7 @@ interface Task {
   endDate: null;
   status: "";
   //   percentage: number;
-  remarks?: string;
+  remarks: string;
 }
 export default function FormTasks() {
   const [open, setOpen] = useState<boolean>(false);
@@ -27,12 +28,12 @@ export default function FormTasks() {
     { value: "in_progress", label: "En cours" },
     { value: "pending", label: "En attente" },
     { value: "under_review", label: " Révision" },
+    { value: "postponed", label: " Reporté" },
     { value: "completed", label: " Términé" },
     { value: "cancelled", label: " Annulé" },
   ];
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [content, setContent] = useState("<p>Contenu initial</p>");
 
   useEffect(() => {
     // Simulation de chargement asynchrone
@@ -83,6 +84,13 @@ export default function FormTasks() {
     startDate: Yup.string().required("Ce champ est requis"),
     endDate: Yup.string().required("Ce champ est requis"),
     status: Yup.string().required("Ce champ est requis"),
+    remarks: Yup.string().when("status", {
+      is: (val: string) =>
+        ["pending", "under_review", "postponed", "cancelled"].includes(val),
+      then: (schema) =>
+        schema.required("La remarque est obligatoire pour ce statut"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
   const initialValues: Task = {
     responsible: [],
@@ -103,109 +111,132 @@ export default function FormTasks() {
   });
 
   const { values, errors, touched, handleChange, setFieldValue } = formik;
-  console.log(values);
+  // console.log(values.remarks);
   return (
-    <form onSubmit={formik.handleSubmit} autoComplete="off">
+    <div>
       <button onClick={() => setOpen(true)}>Nouvel tâche</button>
+
       <Modal
         title="Nouvelle tâche"
         isOpen={open}
         onClose={() => setOpen(false)}
         maxHeight="max-h-[98%]"
+        maxWidth="max-w-[95%] md:max-w-[70%]"
       >
-        <div className="space-y-3">
-          <div>
-            <h1 className="mb-1">Nom du tâche</h1>
-            <FormInput
-              id="title"
-              value={values.title}
-              onChange={handleChange}
-              placeholder="taché numéro 1"
-              error={errors.title}
-              touched={touched.title}
-            />
-          </div>
-          <div>
-            <h1 className="mb-1">Collaborateurs</h1>
-            <UserMultiSelect
-              users={users}
-              placeholder="Sélectionner les membres de l’équipe"
-              value={values.responsible}
-              onChange={(vals) => setFieldValue("responsible", vals)}
-              loading={loading}
-              className=""
-              error={Boolean(errors.responsible && touched.responsible)}
-            />
-            {errors.responsible && touched.responsible && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.responsible}
+        {" "}
+        <form onSubmit={formik.handleSubmit} autoComplete="off">
+          <div className="space-y-3">
+            <div>
+              <h1 className="mb-1">Nom du tâche</h1>
+              <FormInput
+                id="title"
+                value={values.title}
+                onChange={handleChange}
+                placeholder="taché numéro 1"
+                error={errors.title}
+                touched={touched.title}
+              />
+            </div>
+            <div>
+              <h1 className="mb-1">Collaborateurs</h1>
+              <UserMultiSelect
+                users={users}
+                placeholder="Sélectionner les membres de l’équipe"
+                value={values.responsible}
+                onChange={(vals) => setFieldValue("responsible", vals)}
+                loading={loading}
+                className=""
+                error={Boolean(errors.responsible && touched.responsible)}
+              />
+              {errors.responsible && touched.responsible && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.responsible}
+                </div>
+              )}
+            </div>
+            <div>
+              <h1 className="mb-1">Statut</h1>
+              <FormSelect
+                id="status"
+                value={values.status}
+                options={OPTIONS}
+                onChange={handleChange}
+                placeholder="Selectionnez votre status"
+                error={errors.status}
+                touched={touched.status}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h1 className="mb-1">Date de début</h1>
+                <DatePicker
+                  value={values.startDate}
+                  onChange={(date) =>
+                    setFieldValue("startDate", date?.toISOString())
+                  }
+                  error={
+                    touched.startDate && errors.startDate
+                      ? formik.errors.startDate
+                      : ""
+                  }
+                />
+              </div>
+              <div>
+                <h1 className="mb-1">Date de fin</h1>
+                <DatePicker
+                  value={values.endDate}
+                  onChange={(date) =>
+                    setFieldValue("endDate", date?.toISOString())
+                  }
+                  error={
+                    touched.endDate && errors.endDate
+                      ? formik.errors.endDate
+                      : ""
+                  }
+                />
+              </div>
+            </div>
+            <div>
+              <h1 className="mb-1">Déscription</h1>
+              <TiptapEditor
+                content={values.description}
+                onChange={(value) =>
+                  setFieldValue("description", value === "<p></p>" ? "" : value)
+                }
+              />
+              {errors.description && touched.description && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.description}
+                </div>
+              )}
+            </div>
+            {["pending", "under_review", "postponed", "cancelled"].includes(
+              values.status
+            ) && (
+              <div>
+                <h1 className="mb-1">Remarque</h1>
+                <FormTextarea
+                  value={values.remarks}
+                  id="remarks"
+                  rows={4}
+                  onChange={handleChange}
+                  error={errors.remarks}
+                  touched={errors.remarks}
+                />
               </div>
             )}
-          </div>
-          <div>
-            <h1 className="mb-1">Status</h1>
-            <FormSelect
-              id="status"
-              value={values.status}
-              options={OPTIONS}
-              onChange={handleChange}
-              placeholder="Selectionnez votre status"
-              error={errors.status}
-              touched={touched.status}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h1 className="mb-1">Date de début</h1>
-              <DatePicker
-                value={values.startDate}
-                onChange={(date) =>
-                  setFieldValue("startDate", date?.toISOString())
-                }
-                error={
-                  touched.startDate && errors.startDate
-                    ? formik.errors.startDate
-                    : ""
-                }
-              />
-            </div>
-            <div>
-              <h1 className="mb-1">Date de fin</h1>
-              <DatePicker
-                value={values.endDate}
-                onChange={(date) =>
-                  setFieldValue("endDate", date?.toISOString())
-                }
-                error={
-                  touched.endDate && errors.endDate ? formik.errors.endDate : ""
-                }
-              />
-            </div>
-          </div>
-          <div>
-            <h1 className="mb-1">Déscription</h1>
-            <RichTextEditor value={content} onChange={setContent} />
-          </div>
 
-          <div>
-            <h1 className="mb-1">Remarque</h1>
-            <FormTextarea
-              value=""
-              id=""
-              rows={4}
-              onChange={() => console.log("")}
-            />
+            <div className="grid">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700"
+              >
+                Enregistrer
+              </button>
+            </div>
           </div>
-          <div className="grid">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700"
-            >
-              Enregistrer
-            </button>
-          </div>
-        </div>
+        </form>
       </Modal>
-    </form>
+    </div>
   );
 }
